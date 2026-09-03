@@ -1,0 +1,15 @@
+{
+  "name": "gen4recomp.github.io",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "serve --listen tcp://127.0.0.1:4173 --no-clipboard --no-port-switching .",
+    "lint": "biome lint .",
+    "check": "biome check .",
+    "fix": "biome check --write ."
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.12",
+    "serve": "14.2.6"
+  }
+}
