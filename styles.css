@@ -25,7 +25,6 @@ html {
 }
 
 body {
-	min-width: 320px;
 	margin: 0;
 	overflow-x: hidden;
 	background: var(--page-background);
@@ -49,9 +48,15 @@ ul {
 
 .story {
 	--breakout-progress: 0;
-	--stage-inset-top: calc((100svh - min(192px, (100vw - 48px) * 0.75)) / 2);
+	--stage-inset-top: max(
+		0px,
+		calc((100svh - min(192px, (100vw - 48px) * 0.75)) / 2)
+	);
 	--stage-inset-right: max(24px, calc((100vw - min(256px, 100vw - 48px)) / 2));
-	--stage-inset-bottom: calc((100svh - min(192px, (100vw - 48px) * 0.75)) / 2);
+	--stage-inset-bottom: max(
+		0px,
+		calc((100svh - min(192px, (100vw - 48px) * 0.75)) / 2)
+	);
 	--stage-inset-left: max(24px, calc((100vw - min(256px, 100vw - 48px)) / 2));
 	position: relative;
 	min-height: 400svh;

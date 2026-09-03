@@ -9,15 +9,20 @@ const MAX_FRAME_DELTA_SECONDS = 0.25;
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 
 const visualStage = document.querySelector(".story__visual");
+const sceneSurface = document.querySelector(".scene-surface");
 const screenTwo = document.querySelector(".story__beat--payoff");
 
-if (visualStage instanceof HTMLElement && screenTwo instanceof HTMLElement) {
+if (
+	visualStage instanceof HTMLElement &&
+	sceneSurface instanceof HTMLElement &&
+	screenTwo instanceof HTMLElement
+) {
 	const motionPreference = globalThis.matchMedia(REDUCED_MOTION_QUERY);
 
 	if (!motionPreference.matches) {
 		let logicalTimeSeconds = 0;
 		let released = false;
-		let currentScene = visualStage.dataset.scene ?? "new-bark";
+		let currentScene = sceneSurface.dataset.scene ?? "new-bark";
 		let lastTimestamp = 0;
 		let frameRequest = 0;
 		let layoutRequested = false;
@@ -56,7 +61,7 @@ if (visualStage instanceof HTMLElement && screenTwo instanceof HTMLElement) {
 
 			if (scene !== currentScene) {
 				currentScene = scene;
-				visualStage.dataset.scene = scene;
+				sceneSurface.dataset.scene = scene;
 			}
 		}
 
@@ -90,7 +95,7 @@ if (visualStage instanceof HTMLElement && screenTwo instanceof HTMLElement) {
 				released = false;
 				logicalTimeSeconds %= NEW_BARK_END_SECONDS;
 				currentScene = "new-bark";
-				visualStage.dataset.scene = currentScene;
+				sceneSurface.dataset.scene = currentScene;
 			}
 
 			visualStage.style.setProperty("--breakout-progress", String(progress));
