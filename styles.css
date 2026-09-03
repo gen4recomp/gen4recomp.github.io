@@ -13,7 +13,6 @@
 	--dialogue-fill: rgb(245 241 231);
 	--dialogue-text: rgb(44 41 37);
 	--dialogue-edge: rgb(119 141 160);
-	--dialogue-edge-light: rgb(194 206 216);
 	--focus: rgb(232 201 143);
 }
 
@@ -133,7 +132,7 @@ ul {
 	position: sticky;
 	top: clamp(3rem, 11svh, 7rem);
 	align-self: start;
-	max-width: 15ch;
+	max-width: 17ch;
 	opacity: clamp(0, calc(1 - (var(--breakout-progress) - 0.3) * 4), 1);
 	text-align: center;
 }
@@ -164,7 +163,6 @@ ul {
 .story__beat--intro h1,
 .story__beat--payoff h2,
 .final-menu h2 {
-	max-width: 15ch;
 	color: var(--ink);
 	font-family: "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
 	font-size: clamp(2.6rem, 8vw, 7.5rem);
@@ -183,92 +181,35 @@ ul {
 	text-align: center;
 }
 
-.dialogue-box {
+.story__dialogue-region {
+	--dialogue-height: clamp(9rem, 22svh, 11rem);
+	--dialogue-bottom: clamp(1.5rem, 4vw, 2.5rem);
 	position: relative;
-	align-self: end;
-	justify-self: center;
-	width: min(100%, 48rem);
-	padding: clamp(1.1rem, 2.6vw, 1.65rem);
-	border: 4px solid rgb(143 113 75);
-	outline: 3px solid rgb(45 43 40);
-	outline-offset: 4px;
-	border-radius: 0.18rem;
+	min-height: 260svh;
+	padding: 0 clamp(1rem, 5vw, 3rem);
+	padding-top: 45svh;
+	padding-bottom: var(--dialogue-bottom);
+}
+
+.dialogue-box {
+	position: sticky;
+	top: calc(100svh - var(--dialogue-height) - var(--dialogue-bottom));
+	width: min(90vw, 42.5rem);
+	height: var(--dialogue-height);
+	margin: 0 auto;
+	padding: clamp(1rem, 2.2vw, 1.125rem) clamp(1.25rem, 2.4vw, 1.5rem);
+	border: 3px solid rgb(48 44 39);
+	border-radius: 3px;
 	background: var(--dialogue-fill);
 	box-shadow:
-		inset 0 0 0 2px var(--dialogue-edge),
-		inset 0 0 0 5px var(--dialogue-edge-light),
-		7px 7px 0 rgb(28 27 25),
-		11px 11px 0 rgb(104 82 57 / 82%);
+		inset 0 0 0 2px rgb(181 143 103),
+		inset 0 0 0 5px rgb(51 50 48),
+		inset 0 0 0 9px var(--dialogue-edge),
+		5px 5px 0 rgb(33 31 28);
 	color: var(--dialogue-text);
 }
 
-.dialogue-box::before {
-	position: absolute;
-	inset: 5px;
-	border: 1px solid rgb(255 255 255 / 68%);
-	border-radius: 0.08rem;
-	content: "";
-	pointer-events: none;
-}
-
-.dialogue-box h2 {
-	max-width: none;
-	color: var(--dialogue-text);
-	font-family: "Courier New", monospace;
-	font-size: clamp(1rem, 1.7vw, 1.35rem);
-	font-style: normal;
-	font-weight: 700;
-	letter-spacing: 0.015em;
-	line-height: 1.2;
-	text-shadow: 1px 1px 0 rgb(145 154 161 / 72%);
-	text-transform: uppercase;
-}
-
-.feature-list {
-	display: grid;
-	gap: 0.55rem;
-	margin-top: 1rem;
-	padding-left: 1.25rem;
-	color: var(--dialogue-text);
-	font-family: "Courier New", monospace;
-	font-size: clamp(0.82rem, 1.35vw, 1.05rem);
-	font-weight: 700;
-	line-height: 1.28;
-	text-shadow: 1px 1px 0 rgb(145 154 161 / 58%);
-}
-
-.story__beat--recruitment {
-	align-items: center;
-	margin-top: 50svh;
-}
-
-.story__beat--recruitment .dialogue-box {
-	align-self: center;
-}
-
-.dialogue-box__body,
-.dialogue-box__note {
-	font-family: "Courier New", monospace;
-	font-size: clamp(0.86rem, 1.5vw, 1.1rem);
-	line-height: 1.3;
-	text-shadow: 1px 1px 0 rgb(145 154 161 / 58%);
-}
-
-.dialogue-box__body {
-	margin-top: 1rem;
-	font-weight: 700;
-}
-
-.dialogue-box__note {
-	margin-top: 0.35rem;
-	color: rgb(111 103 92);
-}
-
-.dialogue-box__visual {
-	display: none;
-}
-
-.dialogue-box--typing .dialogue-box__accessible {
+.dialogue-box__semantic {
 	position: absolute;
 	width: 1px;
 	height: 1px;
@@ -278,8 +219,28 @@ ul {
 	white-space: nowrap;
 }
 
-.dialogue-box--typing .dialogue-box__visual {
-	display: inline;
+.dialogue-box__semantic ul {
+	padding: 0;
+	list-style: none;
+}
+
+.dialogue-box__visual {
+	display: block;
+	height: 100%;
+	overflow-wrap: anywhere;
+	color: var(--dialogue-text);
+	font-family: "Courier New", monospace;
+	font-size: clamp(0.94rem, 1.3vw, 1.05rem);
+	font-weight: 700;
+	letter-spacing: 0.01em;
+	line-height: 1.3;
+	text-shadow: 1px 1px 0 rgb(145 154 161 / 62%);
+	white-space: pre-wrap;
+}
+
+.dialogue-box__visual::first-line {
+	font-size: clamp(1.05rem, 1.6vw, 1.25rem);
+	font-weight: 800;
 }
 
 .final-menu {
@@ -400,18 +361,25 @@ ul {
 		padding-bottom: 4rem;
 	}
 
+	.story__dialogue-region {
+		--dialogue-bottom: 1.5rem;
+		min-height: 240svh;
+		padding-inline: 0.75rem;
+		padding-top: 35svh;
+	}
+
 	.dialogue-box {
-		padding: 1.35rem;
+		width: 100%;
+		padding: 0.85rem 1rem;
 	}
 
-	.dialogue-box h2 {
-		font-size: clamp(0.92rem, 4vw, 1.2rem);
+	.dialogue-box__visual {
+		font-size: 0.9rem;
+		line-height: 1.28;
 	}
 
-	.feature-list {
-		gap: 0.8rem;
-		margin-top: 1.25rem;
-		font-size: 0.78rem;
+	.dialogue-box__visual::first-line {
+		font-size: 1rem;
 	}
 
 	.menu-option {
