@@ -1,140 +1,169 @@
-const NEW_BARK_END_SECONDS = 8;
-const LOCATION_2_END_SECONDS = 16;
-const REEL_END_SECONDS = 24;
 const HANDHELD_WIDTH = 256;
 const HANDHELD_HEIGHT = 192;
 const PAGE_GUTTER = 48;
-const MILLISECONDS_PER_SECOND = 1000;
-const MAX_FRAME_DELTA_SECONDS = 0.25;
+const NEW_BARK_LOOP_DURATION_MS = 2000;
+const RELEASE_THRESHOLD = 0.9;
+const BREAKOUT_DISTANCE_VIEWPORTS = 1.65;
+const INITIAL_STAGE_TOP_RATIO = 0.64;
+const SMOOTHSTEP_SCALE = 3;
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 
+const story = document.querySelector(".story");
 const visualStage = document.querySelector(".story__visual");
 const sceneSurface = document.querySelector(".scene-surface");
-const screenTwo = document.querySelector(".story__beat--payoff");
 
 if (
+	story instanceof HTMLElement &&
 	visualStage instanceof HTMLElement &&
-	sceneSurface instanceof HTMLElement &&
-	screenTwo instanceof HTMLElement
+	sceneSurface instanceof HTMLElement
 ) {
 	const motionPreference = globalThis.matchMedia(REDUCED_MOTION_QUERY);
 
 	if (!motionPreference.matches) {
-		let logicalTimeSeconds = 0;
-		let released = false;
-		let currentScene = sceneSurface.dataset.scene ?? "new-bark";
-		let lastTimestamp = 0;
-		let frameRequest = 0;
-		let layoutRequested = false;
+		let mediaMode = "new-bark";
+		let newBarkLoopOrigin = globalThis.performance.now();
+		let handoffTimeoutId = 0;
+		let handoffGeneration = 0;
+		let releaseRequested = false;
+		let layoutFrameId = 0;
 
 		function clamp(value, minimum, maximum) {
 			return Math.min(Math.max(value, minimum), maximum);
 		}
 
-		function updateReel(timestamp) {
-			if (document.visibilityState === "hidden") {
-				lastTimestamp = 0;
+		function setMediaMode(nextMode) {
+			if (mediaMode === nextMode) {
 				return;
 			}
 
-			if (lastTimestamp > 0) {
-				const elapsedSeconds = Math.min(
-					(timestamp - lastTimestamp) / MILLISECONDS_PER_SECOND,
-					MAX_FRAME_DELTA_SECONDS,
-				);
-				logicalTimeSeconds += elapsedSeconds;
-			}
-			lastTimestamp = timestamp;
+			mediaMode = nextMode;
+			sceneSurface.dataset.media = nextMode;
+		}
 
-			let loopEnd = NEW_BARK_END_SECONDS;
-			if (released) {
-				loopEnd = REEL_END_SECONDS;
+		function cancelHandoff() {
+			handoffGeneration += 1;
+			if (handoffTimeoutId !== 0) {
+				globalThis.clearTimeout(handoffTimeoutId);
+				handoffTimeoutId = 0;
 			}
-			logicalTimeSeconds %= loopEnd;
+		}
 
-			let scene = "new-bark";
-			if (released && logicalTimeSeconds >= LOCATION_2_END_SECONDS) {
-				scene = "location-3";
-			} else if (released && logicalTimeSeconds >= NEW_BARK_END_SECONDS) {
-				scene = "location-2";
+		function resetNewBark() {
+			cancelHandoff();
+			setMediaMode("new-bark");
+			newBarkLoopOrigin = globalThis.performance.now();
+			releaseRequested = false;
+		}
+
+		function armHandoff() {
+			if (mediaMode === "rotation" || handoffTimeoutId !== 0) {
+				return;
 			}
 
-			if (scene !== currentScene) {
-				currentScene = scene;
-				sceneSurface.dataset.scene = scene;
+			releaseRequested = true;
+			const elapsed = Math.max(
+				0,
+				globalThis.performance.now() - newBarkLoopOrigin,
+			);
+			const loopPhase = elapsed % NEW_BARK_LOOP_DURATION_MS;
+			let remaining = NEW_BARK_LOOP_DURATION_MS - loopPhase;
+			if (loopPhase === 0) {
+				remaining = 0;
+			}
+			handoffGeneration += 1;
+			const requestGeneration = handoffGeneration;
+
+			handoffTimeoutId = globalThis.setTimeout(() => {
+				handoffTimeoutId = 0;
+				if (
+					requestGeneration !== handoffGeneration ||
+					!releaseRequested ||
+					mediaMode !== "new-bark"
+				) {
+					return;
+				}
+
+				setMediaMode("rotation");
+				releaseRequested = false;
+			}, remaining);
+		}
+
+		function reconcileMedia(progress) {
+			if (progress < RELEASE_THRESHOLD) {
+				if (mediaMode === "rotation") {
+					resetNewBark();
+					return;
+				}
+
+				releaseRequested = false;
+				cancelHandoff();
+				return;
+			}
+
+			if (mediaMode === "new-bark") {
+				armHandoff();
 			}
 		}
 
 		function updateLayout() {
-			const screenTwoRect = screenTwo.getBoundingClientRect();
-			const viewportWidth = globalThis.innerWidth;
-			const viewportHeight = globalThis.innerHeight;
-			const containedWidth = Math.max(
-				1,
-				Math.min(HANDHELD_WIDTH, viewportWidth - PAGE_GUTTER),
+			const viewportWidth = Math.max(1, globalThis.innerWidth);
+			const viewportHeight = Math.max(1, globalThis.innerHeight);
+			const containedWidth = Math.min(
+				HANDHELD_WIDTH,
+				Math.max(1, viewportWidth - PAGE_GUTTER),
 			);
 			const containedHeight =
 				containedWidth * (HANDHELD_HEIGHT / HANDHELD_WIDTH);
-			const initialInsets = {
-				top: Math.max(0, (viewportHeight - containedHeight) / 2),
-				right: Math.max(0, (viewportWidth - containedWidth) / 2),
-				bottom: Math.max(0, (viewportHeight - containedHeight) / 2),
-				left: Math.max(0, (viewportWidth - containedWidth) / 2),
-			};
-			const progress = clamp(1 - screenTwoRect.top / viewportHeight, 0, 1);
-			const insets = {
-				top: initialInsets.top * (1 - progress),
-				right: initialInsets.right * (1 - progress),
-				bottom: initialInsets.bottom * (1 - progress),
-				left: initialInsets.left * (1 - progress),
-			};
-
-			if (progress >= 1 && !released) {
-				released = true;
-			} else if (progress <= 0 && released) {
-				released = false;
-				logicalTimeSeconds %= NEW_BARK_END_SECONDS;
-				currentScene = "new-bark";
-				sceneSurface.dataset.scene = currentScene;
-			}
+			const horizontalInset = Math.max(0, (viewportWidth - containedWidth) / 2);
+			const initialTop = clamp(
+				viewportHeight * INITIAL_STAGE_TOP_RATIO - containedHeight / 2,
+				0,
+				Math.max(0, viewportHeight - containedHeight),
+			);
+			const progress = clamp(
+				-story.getBoundingClientRect().top /
+					(BREAKOUT_DISTANCE_VIEWPORTS * viewportHeight),
+				0,
+				1,
+			);
+			const easedProgress =
+				progress * progress * (SMOOTHSTEP_SCALE - 2 * progress);
+			const insetScale = 1 - easedProgress;
 
 			visualStage.style.setProperty("--breakout-progress", String(progress));
-			visualStage.style.setProperty("--stage-inset-top", `${insets.top}px`);
-			visualStage.style.setProperty("--stage-inset-right", `${insets.right}px`);
+			visualStage.style.setProperty(
+				"--stage-inset-top",
+				`${initialTop * insetScale}px`,
+			);
+			visualStage.style.setProperty(
+				"--stage-inset-right",
+				`${horizontalInset * insetScale}px`,
+			);
 			visualStage.style.setProperty(
 				"--stage-inset-bottom",
-				`${insets.bottom}px`,
+				`${Math.max(0, viewportHeight - initialTop - containedHeight) * insetScale}px`,
 			);
-			visualStage.style.setProperty("--stage-inset-left", `${insets.left}px`);
+			visualStage.style.setProperty(
+				"--stage-inset-left",
+				`${horizontalInset * insetScale}px`,
+			);
+			reconcileMedia(progress);
 		}
 
 		function scheduleLayoutUpdate() {
-			layoutRequested = true;
-			if (frameRequest === 0) {
-				frameRequest = globalThis.requestAnimationFrame(runFrame);
+			if (layoutFrameId === 0) {
+				layoutFrameId = globalThis.requestAnimationFrame(() => {
+					layoutFrameId = 0;
+					updateLayout();
+				});
 			}
 		}
 
-		function runFrame(timestamp) {
-			frameRequest = 0;
-
-			if (layoutRequested) {
-				layoutRequested = false;
-				updateLayout();
-			}
-
-			updateReel(timestamp);
-			frameRequest = globalThis.requestAnimationFrame(runFrame);
-		}
-
+		sceneSurface.dataset.media = mediaMode;
 		updateLayout();
 		globalThis.addEventListener("scroll", scheduleLayoutUpdate, {
 			passive: true,
 		});
 		globalThis.addEventListener("resize", scheduleLayoutUpdate);
-		document.addEventListener("visibilitychange", () => {
-			lastTimestamp = 0;
-		});
-		frameRequest = globalThis.requestAnimationFrame(runFrame);
 	}
 }
