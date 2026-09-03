@@ -7,6 +7,8 @@ const BREAKOUT_DISTANCE_VIEWPORTS = 1.65;
 const INITIAL_STAGE_TOP_RATIO = 0.64;
 const SMOOTHSTEP_SCALE = 3;
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
+const TYPEWRITER_CHARACTER_DELAY_MS = 30;
+const TYPEWRITER_ENTRY_THRESHOLD = 0.35;
 
 const story = document.querySelector(".story");
 const visualStage = document.querySelector(".story__visual");
@@ -18,13 +20,80 @@ if (
 	sceneSurface instanceof HTMLElement
 ) {
 	const motionPreference = globalThis.matchMedia(REDUCED_MOTION_QUERY);
+	const dialogueBoxes = Array.from(
+		document.querySelectorAll(".dialogue-box"),
+	).filter((dialogueBox) => dialogueBox instanceof HTMLElement);
+
+	function wait(duration) {
+		return new Promise((resolve) => {
+			globalThis.setTimeout(resolve, duration);
+		});
+	}
+
+	async function typeText(target, fullText, characterCount = 1) {
+		if (characterCount > fullText.length) {
+			return;
+		}
+
+		target.textContent = fullText.slice(0, characterCount);
+		await wait(TYPEWRITER_CHARACTER_DELAY_MS);
+		return typeText(target, fullText, characterCount + 1);
+	}
+
+	async function typeTargets(visualTargets, targetIndex = 0) {
+		if (targetIndex >= visualTargets.length) {
+			return;
+		}
+
+		const visualTarget = visualTargets[targetIndex];
+		const accessibleSource = visualTarget.previousElementSibling;
+		if (accessibleSource instanceof HTMLElement) {
+			await typeText(visualTarget, accessibleSource.textContent.trim());
+		}
+
+		return typeTargets(visualTargets, targetIndex + 1);
+	}
+
+	async function typeDialogue(dialogueBox) {
+		if (dialogueBox.dataset.typingStarted === "true") {
+			return;
+		}
+
+		dialogueBox.dataset.typingStarted = "true";
+		dialogueBox.classList.add("dialogue-box--typing");
+
+		const visualTargets = Array.from(
+			dialogueBox.querySelectorAll(".dialogue-box__visual"),
+		).filter((target) => target instanceof HTMLElement);
+		await typeTargets(visualTargets);
+	}
+
+	if (!motionPreference.matches && "IntersectionObserver" in globalThis) {
+		const dialogueObserver = new IntersectionObserver(
+			(entries) => {
+				for (const entry of entries) {
+					if (
+						entry.isIntersecting &&
+						entry.intersectionRatio >= TYPEWRITER_ENTRY_THRESHOLD &&
+						entry.target instanceof HTMLElement
+					) {
+						dialogueObserver.unobserve(entry.target);
+						typeDialogue(entry.target);
+					}
+				}
+			},
+			{ threshold: TYPEWRITER_ENTRY_THRESHOLD },
+		);
+
+		for (const dialogueBox of dialogueBoxes) {
+			dialogueObserver.observe(dialogueBox);
+		}
+	}
 
 	if (!motionPreference.matches) {
 		let mediaMode = "new-bark";
-		let newBarkLoopOrigin = globalThis.performance.now();
+		const newBarkLoopOrigin = globalThis.performance.now();
 		let handoffTimeoutId = 0;
-		let handoffGeneration = 0;
-		let releaseRequested = false;
 		let layoutFrameId = 0;
 
 		function clamp(value, minimum, maximum) {
@@ -40,27 +109,11 @@ if (
 			sceneSurface.dataset.media = nextMode;
 		}
 
-		function cancelHandoff() {
-			handoffGeneration += 1;
-			if (handoffTimeoutId !== 0) {
-				globalThis.clearTimeout(handoffTimeoutId);
-				handoffTimeoutId = 0;
-			}
-		}
-
-		function resetNewBark() {
-			cancelHandoff();
-			setMediaMode("new-bark");
-			newBarkLoopOrigin = globalThis.performance.now();
-			releaseRequested = false;
-		}
-
 		function armHandoff() {
 			if (mediaMode === "rotation" || handoffTimeoutId !== 0) {
 				return;
 			}
 
-			releaseRequested = true;
 			const elapsed = Math.max(
 				0,
 				globalThis.performance.now() - newBarkLoopOrigin,
@@ -70,37 +123,23 @@ if (
 			if (loopPhase === 0) {
 				remaining = 0;
 			}
-			handoffGeneration += 1;
-			const requestGeneration = handoffGeneration;
 
 			handoffTimeoutId = globalThis.setTimeout(() => {
 				handoffTimeoutId = 0;
-				if (
-					requestGeneration !== handoffGeneration ||
-					!releaseRequested ||
-					mediaMode !== "new-bark"
-				) {
+				if (mediaMode !== "new-bark") {
 					return;
 				}
 
 				setMediaMode("rotation");
-				releaseRequested = false;
 			}, remaining);
 		}
 
 		function reconcileMedia(progress) {
-			if (progress < RELEASE_THRESHOLD) {
-				if (mediaMode === "rotation") {
-					resetNewBark();
-					return;
-				}
-
-				releaseRequested = false;
-				cancelHandoff();
+			if (mediaMode === "rotation") {
 				return;
 			}
 
-			if (mediaMode === "new-bark") {
+			if (progress >= RELEASE_THRESHOLD) {
 				armHandoff();
 			}
 		}
@@ -130,7 +169,7 @@ if (
 				progress * progress * (SMOOTHSTEP_SCALE - 2 * progress);
 			const insetScale = 1 - easedProgress;
 
-			visualStage.style.setProperty("--breakout-progress", String(progress));
+			story.style.setProperty("--breakout-progress", String(progress));
 			visualStage.style.setProperty(
 				"--stage-inset-top",
 				`${initialTop * insetScale}px`,
