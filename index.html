@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="gen4recomp is an unofficial, open-source project exploring a new way to experience Generation IV games you already own."
+      content="gen4recomp is an unofficial, open-source project for experiencing Generation IV games with your own legally obtained compatible copy."
     />
     <meta name="theme-color" content="#0a0a0a" />
     <title>gen4recomp</title>
@@ -14,26 +14,84 @@
   </head>
   <body>
     <main>
-      <section class="hero" aria-labelledby="hero-title">
-        <div class="game-frame" aria-hidden="true">
-          <div class="game-frame__screen">
-            <p>Gameplay footage goes here.</p>
+      <section class="story" aria-label="gen4recomp story">
+        <div class="story__visual" aria-hidden="true">
+          <div class="scene-surface" data-scene="new-bark">
+            <span class="scene-surface__label"></span>
           </div>
+          <div class="device-frame"></div>
         </div>
 
-        <div class="hero__copy">
-          <h1 id="hero-title">THE GEN IV YOU KNOW AND LOVE...</h1>
-          <p>Scroll to break it out.</p>
+        <div class="story__beats">
+          <section class="story__beat" aria-labelledby="intro-title">
+            <div class="story__beat-copy">
+              <p class="story__kicker">A new page in the old guide</p>
+              <h1 id="intro-title">THE GEN IV YOU KNOW AND LOVE...</h1>
+              <p class="story__cue">SCROLL TO BREAK IT OUT</p>
+            </div>
+          </section>
+
+          <section class="story__beat story__beat--payoff" aria-labelledby="payoff-title">
+            <h2 id="payoff-title">...LIKE YOU'VE NEVER SEEN BEFORE.</h2>
+          </section>
+
+          <section class="story__beat" aria-labelledby="features-title">
+            <article class="dialogue-box">
+              <p class="dialogue-box__eyebrow">FIELD NOTES / NEXT BUILD</p>
+              <h2 id="features-title">PLANNED FEATURES:</h2>
+              <ul class="feature-list">
+                <li>
+                  EVERY SINGLE INTERACTION IN THE GAME
+                  <span class="feature-list__aside">(yes, even that one)</span>
+                </li>
+                <li>INCREDIBLE MODDABILITY</li>
+                <li>FULL ONLINE PLAY SUPPORT</li>
+              </ul>
+            </article>
+          </section>
+
+          <section class="story__beat story__beat--recruitment" aria-labelledby="recruitment-title">
+            <article class="dialogue-box">
+              <p class="dialogue-box__eyebrow">STATUS REPORT / PLEASE READ</p>
+              <h2 id="recruitment-title">BUT WE HAVE TO SHIP THE DARN THING FIRST.</h2>
+              <p class="dialogue-box__body">Contributors and playtesters wanted.</p>
+              <p class="dialogue-box__note">First alpha coming soon.</p>
+            </article>
+          </section>
         </div>
       </section>
 
-      <section class="placeholder-section">
-        <h2>...LIKE YOU'VE NEVER SEEN IT BEFORE.</h2>
-        <p>
-          This scaffold intentionally contains almost no implementation. Add the real
-          scroll-driven presentation here without introducing a framework unless the
-          site genuinely outgrows the platform.
-        </p>
+      <section class="final-menu" aria-labelledby="menu-title">
+        <div class="final-menu__inner">
+          <p class="final-menu__kicker">YOUR MOVE, TRAINER</p>
+          <h2 id="menu-title">WHAT WILL YOU DO?</h2>
+
+          <nav aria-label="Project links">
+            <ul class="menu-list">
+              <li>
+                <button class="menu-option" type="button" disabled>
+                  <span class="menu-option__cursor" aria-hidden="true">&gt;</span>
+                  <span class="menu-option__text">
+                    <span>JOIN THE DISCORD</span>
+                    <small>INVITE COMING SOON</small>
+                  </span>
+                </button>
+              </li>
+              <li>
+                <a class="menu-option" href="https://github.com/gen4recomp/gen4recomp">
+                  <span class="menu-option__cursor" aria-hidden="true">&gt;</span>
+                  <span class="menu-option__text">VIEW THE GITHUB</span>
+                </a>
+              </li>
+            </ul>
+          </nav>
+
+          <p class="disclaimer">
+            gen4recomp is an unofficial, fan-made open-source project. It is not affiliated with or
+            endorsed by Nintendo, Game Freak, or The Pokemon Company. It does not ship the ROM or
+            copyrighted game assets. You must provide your own compatible copy, legally obtained.
+          </p>
+        </div>
       </section>
     </main>
   </body>
