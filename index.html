@@ -22,13 +22,19 @@
 
         <div class="story__beats">
           <section class="story__beat story__beat--intro" aria-labelledby="intro-title">
-            <h1 id="intro-title">THE GEN IV YOU KNOW AND LOVE...</h1>
+            <h1 class="intro-copy" id="intro-title">
+              <span class="intro-copy__games">
+                <abbr class="game-tag game-tag--hg" title="HeartGold">HeartGold</abbr> AND
+                <abbr class="game-tag game-tag--ss" title="SoulSilver">SoulSilver</abbr>
+              </span>
+              <span class="intro-copy__tagline">you know and love&hellip;</span>
+            </h1>
           </section>
 
           <div class="story__breakout-gap" aria-hidden="true"></div>
 
           <section class="story__beat story__beat--payoff" aria-labelledby="payoff-title">
-            <h2 id="payoff-title">...LIKE YOU'VE NEVER SEEN BEFORE.</h2>
+            <h2 class="payoff-copy" id="payoff-title">&hellip;like you've never seen before.</h2>
           </section>
 
           <section class="story__dialogue-region" aria-label="Project dialogue">
@@ -37,18 +43,40 @@
                 <section data-dialogue-message="planned-features" aria-labelledby="features-title">
                   <h2 id="features-title">PLANNED FEATURES:</h2>
                   <ul>
-                    <li>EVERY SINGLE INTERACTION IN THE GAME</li>
-                    <li>INCREDIBLE MODDABILITY</li>
-                    <li>FULL ONLINE PLAY SUPPORT</li>
+                    <li>ALL THE POST-GAME</li>
+                    <li>ALL WI-FI EVENTS</li>
+                    <li>ALL SECRETS</li>
+                    <li>ALL MINI GAMES</li>
+                    <li>ONLINE BATTLING</li>
+                    <li>ONLINE TRADING</li>
+                    <li>EVERY SINGLE INTERACTION</li>
+                    <li>(yup, even that one)</li>
                   </ul>
                 </section>
+                <section data-dialogue-message="going-crazy" aria-labelledby="crazy-title">
+                  <h2 id="crazy-title">AND THERE'S MORE:</h2>
+                  <ul>
+                    <li>RIDICULOUSLY MODDABLE</li>
+                    <li>HIGH-RES RENDERING</li>
+                    <li>NOT TOO HIGH-RES</li>
+                    <li>DUAL SCREEN SUPPORT (duh)</li>
+                    <li>TOUCH/MOUSE CONTROLS</li>
+                    <li>RUNS ON POTATOES</li>
+                  </ul>
+                  <p>AND WHATEVER CRAZY IDEAS WE CAN STEAL FROM <a href="https://github.com/bryanthaboi/gen1recomp">GEN1RECOMP</a>!</p>
+                </section>
                 <section data-dialogue-message="recruitment" aria-labelledby="recruitment-title">
-                  <h2 id="recruitment-title">BUT WE HAVE TO SHIP THE DARN THING FIRST.</h2>
+                  <h2 id="recruitment-title">BUT FIRST WE HAVE TO SHIP THE DAMN THING!</h2>
+                  <p />
                   <p>Contributors and playtesters wanted.</p>
                   <p>First alpha coming soon.</p>
                 </section>
               </div>
-              <div class="dialogue-box__visual" aria-hidden="true"></div>
+              <div class="dialogue-box__visual" aria-hidden="true">
+                <p class="dialogue-box__visual-heading"></p>
+                <div class="dialogue-box__visual-body"></div>
+                <p class="dialogue-box__visual-note"></p>
+              </div>
             </article>
           </section>
         </div>
@@ -56,7 +84,7 @@
 
       <section class="final-menu" aria-labelledby="menu-title">
         <div class="final-menu__inner">
-          <h2 id="menu-title">WHAT WILL YOU DO?</h2>
+          <h2 id="menu-title">JOIN IN ON THE FUN!</h2>
 
           <nav aria-label="Project links">
             <ul class="menu-list">
@@ -72,7 +100,7 @@
               <li>
                 <a class="menu-option" href="https://github.com/gen4recomp/gen4recomp">
                   <span class="menu-option__cursor" aria-hidden="true"></span>
-                  <span class="menu-option__text">VIEW THE GITHUB</span>
+                  <span class="menu-option__text">VISIT US ON GITHUB</span>
                 </a>
               </li>
             </ul>
