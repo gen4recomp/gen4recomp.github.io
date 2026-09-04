@@ -206,14 +206,15 @@ ul {
 }
 
 .final-menu h2 {
-	max-width: 10ch;
+	max-width: 20ch;
 	color: var(--ink);
-	font-family: "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
-	font-size: clamp(3rem, 9vw, 8rem);
-	font-style: normal;
-	font-weight: 800;
+	font-family: "Trebuchet MS", "Segoe UI", Arial, sans-serif;
+	font-size: clamp(2rem, 4vw, 3.5rem);
+	font-style: italic;
+	font-weight: 650;
 	letter-spacing: 0.015em;
-	line-height: 0.96;
+	line-height: 1.1;
+	text-shadow: 0 2px 4px rgb(0 0 0 / 40%);
 	text-transform: uppercase;
 }
 
